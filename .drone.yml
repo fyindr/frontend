@@ -1,0 +1,77 @@
+---
+################
+# Build & Test #
+################
+
+kind: pipeline
+name: run_tests
+
+steps:
+# Test the vue theme
+- name: test
+  image: node
+  commands:
+  - pwd
+  - cd ./frontend
+  - npm install
+  - npm test
+  volumes:
+  # Link node_modules cache from host filesystem into container at the expected location
+  - name: node_cache
+    path: /drone/src/frontend/node_modules
+
+- name: build
+  image: node
+  commands:
+  - cd ./frontend
+  - rm -Rf ./build/*
+  - npm run build
+  - ls ./build
+  volumes:
+    # Link node_modules cache from host filesystem into container at the expected location
+    - name: node_cache
+      path: /drone/src/frontend/node_modules
+    - name: build
+      path: /drone/src/frontend/build
+
+volumes:
+  - name: node_cache
+    host:
+      path: /tmp/cache/drone/node_modules
+  - name: build
+    host:
+      path: /tmp/cache/drone/build
+---
+########################
+# Deploy to Production #
+########################
+
+kind: pipeline
+name: deploy
+depends_on:
+  # Must run after the first pipeline
+  - run_tests
+trigger:
+  status:
+    # Only runs if the first pipeline was fully successful
+    - success
+
+steps:
+# Test the vue theme
+- name: push commit
+  image: appleboy/drone-git-push
+  settings:
+    branch: master
+    remote: maeda@next:/opt/staging/frontend.git
+    remote_name: staging
+    force: true
+    ssh_key:
+      from_secret: push_deploy_key
+
+volumes:
+  - name: node_cache
+    host:
+      path: /tmp/cache/drone/node_modules
+  - name: build
+    host:
+      path: /tmp/cache/drone/build

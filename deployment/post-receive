@@ -1,0 +1,32 @@
+#!/bin/sh
+
+printf "\n\nStarting post-receive…\n"
+printf "===============================\n"
+
+cd /opt/staging/frontend.git
+
+printf "\n*------------------------------\n"
+printf "* POST-RECEIVE: git checkout… -\n"
+printf "*------------------------------\n"
+printf "Step 1 of 3\n\n"
+
+git --git-dir=/opt/staging/frontend.git --work-tree=/opt/staging/frontend.git checkout master -f
+
+printf "\n*------------------------------\n"
+printf "* POST-RECEIVE: npm install… --\n"
+printf "*------------------------------\n"
+printf "Step 2 of 3\n\n"
+
+cd /opt/staging/frontend.git/vue-theme && npm install
+
+printf "\n*------------------------------\n"
+printf "* POST-RECEIVE: building… -----\n"
+printf "*------------------------------\n"
+printf "Step 3 of 3\n\n"
+
+npm run build
+
+printf "\n*-----------------------------\n"
+printf "* POST-RECEIVE: → SUCCESS ----\n"
+printf "*-----------------------------\n"
+printf "==============================\n\n"
