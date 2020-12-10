@@ -1,21 +1,9 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+import { createApp } from 'vue'
+import router from '@/router'
 
-Vue.use(VueRouter)
+import App from '@/app.vue'
 
-Vue.config.devtools = true
-Vue.config.productionTip = false
+const siimee = createApp(App)
 
-import App from './app.vue'
-import IndexPage from './pages/index.vue'
-
-const routes = [
-    { path: '/', component: IndexPage }
-]
-
-const router = new VueRouter({ routes }) 
-
-new Vue({
-    router,
-    render: h => h(App)
-}).$mount('#app')
+siimee.use(router)
+    .mount('#siimee')
